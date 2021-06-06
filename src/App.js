@@ -1,18 +1,30 @@
+//  DEVELOPED BY: MANAS VIVEK CHOUBAL
+//  AS A PART OF ASSIGNMENT
+//  I'M REACHABLE AT  MANAS.CHOUBAL@GMAIL.COM
+
 import React, { useEffect } from "react";
 import { parse } from "papaparse";
 import Axios from "axios";
+import Heading from "./Components/heading";
+import TableHead from "./Components/tablehead";
+import Instruction from "./Components/instruction";
+
+// const serverConnection = "http://localhost:5000";
+const serverConnection = "https://zostel-assignment-server.herokuapp.com";
 
 export default function App() {
+
   const [highlighted, setHighlighted] = React.useState(false);
   const [contacts, setContacts] = React.useState([
     { email: "Email", name: "Name" },
   ]);
 
-  const fetchData=()=>{Axios.get("https://zostel-assignment-server.herokuapp.com/fetch").then((e) => {
-    // console.log(e.data);
-    setContacts(e.data);
-  });
-}
+  const fetchData = () => {
+    Axios.get(serverConnection + "/fetch").then((e) => {
+      console.log(e.data);
+      setContacts(e.data);
+    });
+  };
 
   useEffect(() => {
     fetchData();
@@ -20,9 +32,9 @@ export default function App() {
 
   return (
     <div>
-      <h1 className="text-center text-4xl my-12">Upload the CSV</h1>
+      <Heading Text="Upload Contact" />
       <div
-        className={`p-6 my-20 mx-auto max-w-md border-2 text-center ${
+        className={`p-6 my-20 mx-auto max-w-sm border-2 text-center animate-pulse border-green-600 bg-green-100 ${
           highlighted ? "border-blue-600 bg-blue-100" : "border-gray-600"
         }`}
         onDragEnter={() => {
@@ -43,34 +55,54 @@ export default function App() {
               console.log(file);
               const text = await file.text();
               const result = parse(text, { header: true });
-              // Axios.post("http://localhost:5000/upload", result.data).then (e => console.log(e.data));
-              result.data.map((i) =>
-                Axios.post("https://zostel-assignment-server.herokuapp.com/upload", {name: i.name, email: i[` email`]}).then((e) =>
-                  // console.log(e.data)
-                  fetchData()
-                )
-              );
+              result.data.map((pushItem) => {
+                if (
+                  pushItem.name !== "" &&
+                  pushItem.name !== " " &&
+                  pushItem.email !== "" &&
+                  pushItem.email !== " "
+                ) {
+                  Axios.post(serverConnection + "/upload", {
+                    name: pushItem.name,
+                    email: pushItem.email,
+                    // email: pushItem[` email`],
+                  }).then((e) => {
+                    console.log(e.data);
+                    fetchData();
+                  });
+                }
+              });
               console.log(result.data);
             });
         }}
       >
-        Drag the file and frop here
+        Drag and drop CSV file here to upload the contact
       </div>
-      <div>
-        <table>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-          </tr>
-          {contacts.map(item => {
-            console.log(item);
-            return <tr key={item._id}>
-              <td>{item.name}</td>
-              <td>{item.email}</td>
-            </tr>
-          })}
-
-        </table>
+      <Instruction InfoText="CSV file should have two fields: name and email" />
+      <Heading Text="All Contacts" />
+      <div className="-my-2 py-2 overflow-x-auto sm:-mx-6 sm:px-6 lg:-mx-8 pr-10 lg:px-8">
+        <div className="align-middle inline-block min-w-full shadow overflow-hidden bg-white shadow-dashboard px-8 pt-3 rounded-bl-lg rounded-br-lg">
+          <table className="min-w-full">
+            <TableHead FieldOne="Name" FieldTwo="Email" />
+            <tbody className="bg-white">
+              {contacts.map((item) => {
+                console.log(item);
+                return (
+                  <tr key={item._id}>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-500">
+                      <div className="text-sm leading-5 text-blue-900">
+                        {item.name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-no-wrap border-b text-blue-900 border-gray-500 text-sm leading-5">
+                      {item.email}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
