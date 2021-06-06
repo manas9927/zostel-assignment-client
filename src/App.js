@@ -1,7 +1,3 @@
-//  DEVELOPED BY: MANAS VIVEK CHOUBAL
-//  AS A PART OF ASSIGNMENT
-//  I'M REACHABLE AT  MANAS.CHOUBAL@GMAIL.COM
-
 import React, { useEffect } from "react";
 import { parse } from "papaparse";
 import Axios from "axios";
