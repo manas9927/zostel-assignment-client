@@ -65,12 +65,11 @@ export default function App() {
                   Axios.post(serverConnection + "/upload", {
                     name: pushItem.name,
                     email: pushItem.email,
-                    // email: pushItem[` email`],
                   }).then((e) => {
                     console.log(e.data);
-                    fetchData();
                   });
                 }
+                return fetchData();
               });
               console.log(result.data);
             });
